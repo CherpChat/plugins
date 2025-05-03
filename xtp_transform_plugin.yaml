@@ -1,0 +1,165 @@
+# yaml-language-server: $schema=https://xtp.dylibso.com/assets/wasm/schema.json
+# Learn more at https://docs.xtp.dylibso.com/docs/concepts/xtp-schema
+# This type of plugin can be used to implement homestuck-style quirking (or any other text transformations)
+version: v1-draft
+exports:
+  apply:
+    description: |
+      Your custom quirk logic
+    codeSamples:
+    - lang: typescript
+      source: |
+        return apply(input)
+    input:
+      type: string
+      description: |
+        The input string
+      contentType: text/plain; charset=utf-8
+    output:
+      type: string
+      description: |
+        The output string
+      contentType: text/plain; charset=utf-8
+  getMeta:
+    description: |
+      Provides metadata about your plugin
+    codeSamples:
+    - lang: typescript
+      source: |
+        return getMeta()
+    output:
+      $ref: "#/components/schemas/MetaObject"
+      contentType: application/json
+  handleRequest:
+    descritption: |
+      Responds and operates on a given HTTP request
+    input:
+      $ref: "#/components/schemas/Request"
+      contentType: application/json
+    output:
+      $ref: "#/components/schemas/Response"
+      contentType: application/json
+imports:
+  setConfig:
+    description: |
+      This function can be used to tell the host to
+      update the configuration for this plugin
+    input:
+      type: string
+      description: |
+        Arbitrary json as a string
+      contentType: text/plain; charset=utf-8
+components:
+  schemas:
+    MetaObject:
+      description: |
+        Metadata about the plugin
+      required:
+        - author
+        - version
+        - info
+      properties:
+        author:
+          description: |
+            Who made this plugin
+          type: string
+        version:
+          description: |
+            SEMVER of this plugin
+          type: string
+        info:
+          description: |
+            What this plugin does
+          type: string
+    HTTPMethod:
+      description: |
+        What method was used in a HTTP request
+      type: string
+      enum:
+        - get
+        - post
+        - patch
+        - put
+        - delete
+        - head
+    Request:
+      description: |
+        Represents an incoming HTTP request
+      host:
+        description: |
+          Origin host of the request
+        type: string
+      format:
+        description: |
+          The requested format
+        type: string
+      method:
+        description: |
+          The type of HTTP method
+        $ref: "#/components/schemas/HTTPMethod"
+      headers:
+        description: |
+          Request headers pre-filtered and scoped to this plugin's namespace
+        type: array
+        items:
+          type: string
+      port:
+        description: |
+          Port number for this request
+        type: integer
+      protocol:
+        description: |
+          https / http or whatever other protocol is being used
+        type: string
+      query_string:
+        description: |
+          Everything in the url after '?'
+        type: string
+      url:
+        description: |
+          The full url
+        type: string
+      query_parameters:
+        description: |
+          Parsed query params
+        type: array
+        items:
+          type: string
+      request_parameters:
+        description: |
+          Parsed post/body params
+        type: array
+        items:
+          type: string
+      path_parameters:
+        description: |
+          Parameters from the rails router
+        type: array
+        items:
+          type: string
+    Response:
+      description: |
+        The plugin's reply to an HTTP request, provide this in JSX format
+      body:
+        description: |
+          The content to return from the request
+        type: string
+      status:
+        description: |
+          HTTP Status Code
+        type: integer
+      location:
+        description: |
+          Redirect locaton, scoped to this plugin's namespace by host
+        type: string
+      content_type:
+        description: |
+          Information about the type of content in body
+        type: string
+      headers:
+        description: |
+          Headers to set on the client, automatically scoped to plugin namespace by host
+        type: array
+        items:
+          type: string
+  
